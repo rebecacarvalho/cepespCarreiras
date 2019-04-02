@@ -40,11 +40,42 @@ ui <- fluidPage(
   navbarPage("CepespCarreiras", theme = shinytheme("flatly"),
              
              
-             tabPanel("Sobre"),
+             tabPanel("Perfil do candidato",
+                      
+                      sidebarLayout(
+                        
+                        sidebarPanel(h4("Opções:"),width = 3,
+                                     
+                                     selectInput(inputId = "ANO_ELEICAO",
+                                                 label = "Escolha um ano",
+                                                 choices = c("1998","2002","2006","2010","2014","2018"),
+                                                 selected = "2018"),
+                                     
+                                     
+                                     selectInput(inputId = "DESCRICAO_CARGO",
+                                                 label = "Escolha um cargo",
+                                                 choices = c("Presidente", "Governador","Senador", "Deputado Federal", "Deputado Estadual"),
+                                                 selected = "Presidente"),
+                                     
+                                     textInput(inputId = "CANDIDATO",
+                                               value = "Digite o nome do candidato"),
+                                     
+                                     
+                                     actionButton(inputId = "BCALC1",
+                                                  label = strong("Carregar"),
+                                                  width = "95%")
+                                     
+                        ),
+                        
+                        mainPanel(
+                          
+                          absolutePanel(top = 0, right = 0, left = 100)))),
+                        
+                        tabPanel("Sobre")
              
-             tabPanel("Caracterização do candidato"),
              
-             mainPanel()))
+             ))
+                     
             
  
 
