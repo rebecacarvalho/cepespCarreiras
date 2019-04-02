@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "\n# Titulo: Shiny do aplicativo de Carreiras\n# Autor: Rebeca Carvalho\n\n\nrm(list = ls())\n\n# Pacotes utilizados\n\nlibrary(cepespR)\nlibrary(knitr)\nlibrary(plyr)\nlibrary(tidyverse)\nlibrary(lubridate)\nlibrary(shiny)\nlibrary(shinyalert)\nlibrary(shinyBS)\nlibrary(ggplot2)\nlibrary(shiny)\nlibrary(readr)\nlibrary(shiny)\nlibrary(shinythemes)\nlibrary(magrittr)\nlibrary(shinydashboard)\nlibrary(shinyWidgets)\nlibrary(shinyjs)\nlibrary(plotly)\nlibrary(DT)\n\n# 1. Data ----------------------------------------------------------------\n\n\n\n# 2. User interface -------------------------------------------------------\n\n\nui <- fluidPage(\n  \n  \n  navbarPage(\"CepespCarreiras\", theme = shinytheme(\"flatly\"),\n             \n             \n             tabPanel(\"Sobre\"),\n             \n             tabPanel(\"Caracterização do candidato\"),\n             \n             mainPanel()))\n            \n \n\n# 3. Server ---------------------------------------------------------------\n\nserver <- function(input, output)\n{}\n\n\n\n# 4. ShinyApp -------------------------------------------------------------\n\nshinyApp(ui = ui, server = server)\n\n            ",
+    "created" : 1553616355945.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2064004127",
+    "id" : "978BF9D7",
+    "lastKnownWriteTime" : 1554221993,
+    "last_content_update" : 1554221993211,
+    "path" : "~/cepesp/cepesp_carreiras/app.R",
+    "project_path" : "app.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
