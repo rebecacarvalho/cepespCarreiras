@@ -152,5 +152,8 @@ rm(df_carreiras)
 # salvar banco final pronto ! -----
 save(df, file = "df.RData")
 
+write_delim(df, path = "df.csv", delim = ";", na = "NA", append = F,
+            col_names = T, quote_escape = "double")
+
 # removendo todos os objetos ----
 rm(list = ls())
