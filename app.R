@@ -29,7 +29,17 @@ library(DT)
 
 # 1. Data ----------------------------------------------------------------
 
+df <- df %>% 
+  arrange(desc(`Ano da Eleição`))
 
+
+candidatos <- as.data.frame(df$Nome)
+
+candidatos <- unique(candidatos)
+
+candidatos <- candidatos %>% 
+  dplyr::arrange(`df$Nome`) %>% 
+  rename("Nome" = "df$Nome")
 
 # 2. User interface -------------------------------------------------------
 
@@ -40,36 +50,36 @@ ui <- fluidPage(
   navbarPage("CepespCarreiras", theme = shinytheme("flatly"),
              
              
-             tabPanel("Perfil do candidato",
+             tabPanel("Eleições",
                       
                       sidebarLayout(
                         
                         sidebarPanel(h4("Opções:"),width = 3,
                                      
-                                     selectInput(inputId = "ANO_ELEICAO",
-                                                 label = "Escolha um ano",
-                                                 choices = c("1998","2002","2006","2010","2014","2018"),
-                                                 selected = "2018"),
+                                     selectInput(inputId = "CANDIDATO",
+                                               label = "Digite o nome do candidato",
+                                               choices = candidatos$Nome,
+                                               selected = " "),
                                      
                                      
-                                     selectInput(inputId = "DESCRICAO_CARGO",
-                                                 label = "Escolha um cargo",
-                                                 choices = c("Presidente", "Governador","Senador", "Deputado Federal", "Deputado Estadual"),
-                                                 selected = "Presidente"),
-                                     
-                                     textInput(inputId = "CANDIDATO",
-                                               value = "Digite o nome do candidato"),
-                                     
-                                     
-                                     actionButton(inputId = "BCALC1",
-                                                  label = strong("Carregar"),
+                                     actionButton(inputId = "BAL1",
+                                                  label = strong("Atualizar"),
                                                   width = "95%")
                                      
                         ),
                         
                         mainPanel(
                           
-                          absolutePanel(top = 0, right = 0, left = 100)))),
+                          absolutePanel(top = 0, right = 0, left = 100),
+                          dataTableOutput("perfil"),
+                          br(),
+                          br(),
+                          br(),
+                          br(),
+                          br(),
+                          br(),
+                          dataTableOutput("eleicoes")
+                          ))),
                         
                         tabPanel("Sobre")
              
@@ -82,8 +92,58 @@ ui <- fluidPage(
 # 3. Server ---------------------------------------------------------------
 
 server <- function(input, output)
-{}
+{
+  
+# 3.1. Tabelas ------------------------------------------------------------  
 
+  
+  
+# Perfil do Candidato
+  
+  output$perfil <- DT::renderDataTable(
+    bperfil()
+  )
+  
+  
+# Eleicoes
+  
+  output$eleicoes <- DT::renderDataTable(
+    beleicoes()
+    
+  )
+  
+  
+   candidato <- reactive({
+  dplyr::filter(df$`Ano da Eleição` == input$ANO_ELEICAO & df$Cargo == input$DESCRICAO_CARGO)
+})  
+  
+
+
+
+# 3.2. Botao de acao ------------------------------------------------------
+
+   bperfil <- eventReactive(input$BAL1, {
+  datatable(
+    df %>% 
+      filter(Nome == input$CANDIDATO) %>% 
+      select(Nome, CPF, `Número do Título Eleitoral`, Sexo, `Cor ou Raça`, `Grau de Instrução`, Ocupação,
+             `Estado Civil`, Nacionalidade, `Estado de Nascimento`, `Município de Nascimento`) %>% 
+      unique()
+      
+  )
+})
+   
+   
+   beleicoes <- eventReactive(input$BAL1, {
+     datatable(
+       df %>% 
+         filter(Nome == input$CANDIDATO) %>% 
+         select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`, `Sigla do Partido`,
+                `Sigla da Coligação`, `Composição da Coligação`, Votos)
+    )
+   })
+  
+}
 
 
 # 4. ShinyApp -------------------------------------------------------------
