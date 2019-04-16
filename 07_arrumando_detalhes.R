@@ -8,28 +8,6 @@ library(stringr)
 # Carregando banco -------
 load("df_carreiras.RData")
 
-# Funções ----
-
-## I. P/ Deixar primeiras letras das palavras maiúsculas:
-simpleCap <- function(x) {
-  s <- strsplit(x, " ")[[1]]
-  paste(toupper(substring(s, 1,1)), tolower(substring(s, 2)),
-        sep="", collapse=" ")
-}
-# (Adaptado de: Andrie, Stackoverflow - 
-# https://stackoverflow.com/questions/6364783/capitalize-the-first-letter-of-both-words-in-a-two-word-string ).
-
-## II. P/ ajustar o formato do CPF:
-CPFformat <- function(x) {
-  x <- as.character(x)
-  x <- str_pad(x, 11, pad = "0")
-  part1<-substring(x, 1,3)
-  part2 <- substring(x,4,6)
-  part3 <- substring(x,7,9)
-  part4 <- substring(x,10)
-  paste0(part1,".",part2,".",part3,"-",part4)
-}
-
 # 01. Substituir #NE# p/ "Indisponivel"----
   ##1.0. Mas antes... Passar e-mail p/ caixa baixa
   df_carreiras$EMAIL_CANDIDATO <- tolower(df_carreiras$EMAIL_CANDIDATO)
@@ -49,32 +27,40 @@ df_carreiras$IDADE_DATA_ELEICAO[df_carreiras$IDADE_DATA_ELEICAO<0] <- "Indisponi
 
 # 02. Deixar a primeira letra do nome maiúscula e o resto minúscula ----
 ## 2.1. nos nomes dos candidatos
-df_carreiras$NOME_CANDIDATO <- lapply(df_carreiras$NOME_CANDIDATO, simpleCap)
+df_carreiras$NOME_CANDIDATO <- str_to_title(df_carreiras$NOME_CANDIDATO)
 ## 2.2. no nome dos cargos
-df_carreiras$DESCRICAO_CARGO <- lapply(df_carreiras$DESCRICAO_CARGO, simpleCap)
+df_carreiras$DESCRICAO_CARGO <- str_to_title(df_carreiras$DESCRICAO_CARGO)
 ## 2.3. descrição UE
-df_carreiras$DESCRICAO_UE <- lapply(df_carreiras$DESCRICAO_UE, simpleCap)
+df_carreiras$DESCRICAO_UE <- str_to_title(df_carreiras$DESCRICAO_UE)
 ## 2.4. descrição situação candidatura
-df_carreiras$DES_SITUACAO_CANDIDATURA <- lapply(df_carreiras$DES_SITUACAO_CANDIDATURA, simpleCap)
+df_carreiras$DES_SITUACAO_CANDIDATURA <- str_to_title(df_carreiras$DES_SITUACAO_CANDIDATURA)
 ## 2.5. descrição COR/RAÇA
-df_carreiras$DESCRICAO_COR_RACA <-lapply(df_carreiras$DESCRICAO_COR_RACA, simpleCap)
+df_carreiras$DESCRICAO_COR_RACA <-str_to_title(df_carreiras$DESCRICAO_COR_RACA)
 ## 2.5. Grau de instrução
-df_carreiras$DESCRICAO_GRAU_INSTRUCAO <- lapply(df_carreiras$DESCRICAO_GRAU_INSTRUCAO, simpleCap)
+df_carreiras$DESCRICAO_GRAU_INSTRUCAO <- str_to_title(df_carreiras$DESCRICAO_GRAU_INSTRUCAO)
 df_carreiras$DESCRICAO_GRAU_INSTRUCAO[df_carreiras$DESCRICAO_GRAU_INSTRUCAO=="Lê E Escreve"] <- "Lê e Escreve"
 ## 2.6. Ocupação
-df_carreiras$DESCRICAO_OCUPACAO <- lapply(df_carreiras$DESCRICAO_OCUPACAO, simpleCap)
+df_carreiras$DESCRICAO_OCUPACAO <- str_to_title(df_carreiras$DESCRICAO_OCUPACAO)
 ## 2.7. Nome municipio de nascimento
-df_carreiras$NOME_MUNICIPIO_NASCIMENTO <- lapply(df_carreiras$NOME_MUNICIPIO_NASCIMENTO, simpleCap)
+df_carreiras$NOME_MUNICIPIO_NASCIMENTO <- str_to_title(df_carreiras$NOME_MUNICIPIO_NASCIMENTO)
 ## 2.8. Nacionalidade
-df_carreiras$DESCRICAO_NACIONALIDADE <- lapply(df_carreiras$DESCRICAO_NACIONALIDADE,simpleCap)
+df_carreiras$DESCRICAO_NACIONALIDADE <- str_to_title(df_carreiras$DESCRICAO_NACIONALIDADE)
 ## 2.9. Sexo e estado civil
-df_carreiras$DESCRICAO_SEXO <- lapply(df_carreiras$DESCRICAO_SEXO,simpleCap)
-df_carreiras$DESCRICAO_ESTADO_CIVIL <- lapply(df_carreiras$DESCRICAO_ESTADO_CIVIL, simpleCap)
+df_carreiras$DESCRICAO_SEXO <- str_to_title(df_carreiras$DESCRICAO_SEXO)
+df_carreiras$DESCRICAO_ESTADO_CIVIL <- str_to_lower(df_carreiras$DESCRICAO_ESTADO_CIVIL)
+df_carreiras$DESCRICAO_ESTADO_CIVIL <- paste0(str_to_upper(substring(df_carreiras$DESCRICAO_ESTADO_CIVIL,1,1)), 
+                                              substring(df_carreiras$DESCRICAO_ESTADO_CIVIL,2))
       # Obs.: df_carreiras$DESC_SIT_TOT_TURNO não dá para usar esta função p/ alterar o texto 
       #porque tem "/" ao inves de espaço.
 
 # 03. Colocar dígitos e pontinhos no CPF -----
-df_carreiras$CPF_CANDIDATO <- lapply(df_carreiras$CPF_CANDIDATO, CPFformat)
+df_carreiras$CPF_CANDIDATO <- as.character(df_carreiras$CPF_CANDIDATO)
+df_carreiras$CPF_CANDIDATO  <- str_pad(df_carreiras$CPF_CANDIDATO, 11, pad = "0")
+df_carreiras$CPF_CANDIDATO <- paste0(substring(df_carreiras$CPF_CANDIDATO, 1,3),".",
+                                     substring(df_carreiras$CPF_CANDIDATO, 4,6),".",
+                                     substring(df_carreiras$CPF_CANDIDATO, 7,9),"-",
+                                     substring(df_carreiras$CPF_CANDIDATO, 10))
+
 
 # 04. Criamos a variável Voto com ponto entre os milhares (mas esta variável é character) -----
 df_carreiras$Votos <- format(df_carreiras$QTDE_VOTOS,big.mark = ".",decimal.mark = ",")
