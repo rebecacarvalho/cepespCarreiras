@@ -32,14 +32,25 @@ library(DT)
 df <- df %>% 
   arrange(desc(`Ano da Eleição`))
 
+df <- df %>% 
+  dplyr::arrange(Nome)
 
-candidatos <- as.data.frame(df$Nome)
+ue <- as.data.frame(df$`Sigla da Unidade Eleitoral`)
 
-candidatos <- unique(candidatos)
+ue <- ue %>% 
+  dplyr::arrange(df$`Sigla da Unidade Eleitoral`) %>% 
+  unique() %>% 
+  rename("Sigla da Unidade Eleitoral" = "df$`Sigla da Unidade Eleitoral`") %>% 
+  na.omit()
 
-candidatos <- candidatos %>% 
-  dplyr::arrange(`df$Nome`) %>% 
-  rename("Nome" = "df$Nome")
+sigla <- as.data.frame(df$`Sigla do Partido`)
+
+sigla <- sigla %>% 
+  dplyr::arrange(df$`Sigla do Partido`) %>% 
+  unique() %>% 
+  rename("Sigla do Partido" = "df$`Sigla do Partido`") %>% 
+  na.omit()
+
 
 # 2. User interface -------------------------------------------------------
 
@@ -56,9 +67,26 @@ ui <- fluidPage(
                         
                         sidebarPanel(h4("Opções:"),width = 3,
                                      
+                                     selectInput(inputId = "UE",
+                                                 label = "Selecione a unidade eleitoral do candidato",
+                                                 choices = c("Todos", "AC", "AL", "AM", "AP", "BA", "BR", "CE", "DF", "ES",
+                                                             "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI",
+                                                             "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"),
+                                                 selected = "Todos"),
+                                     
+                                     selectInput(inputId = "PARTIDO",
+                                                 label = "Selecione a sigla do partido do candidato",
+                                                 choices = c("Todos", "AVANTE", "DC", "DEM", "MDB","NOVO", "PAN", "PATRI", "PC do B", 
+                                                             "PCB", "PCO", "PDT", "PEN", "PFL", "PGT", "PHS", "PL", "PMB",
+                                                             "PMDB", "PMN", "PODE", "PP", "PPB", "PPL", "PPS", "PR", "PRB", 
+                                                             "PRN", "PRONA", "PROS", "PRP", "PRTB", "PSB", "PSC", "PSD", "PSDB", 
+                                                             "PSDC", "PSL", "PSN", "PSOL", "PST", "PSTU", "PT", "PT do B", "PTB",
+                                                             "PTC", "PTN", "PV", "REDE", "SD", "SOLIDARIEDADE"),
+                                                 selected = "Todos"),
+                                     
                                      selectInput(inputId = "CANDIDATO",
                                                label = "Digite o nome do candidato",
-                                               choices = candidatos$Nome,
+                                               choices = unique(df$Nome),
                                                selected = " "),
                                      
                                      
@@ -81,12 +109,12 @@ ui <- fluidPage(
                           dataTableOutput("eleicoes")
                           ))),
                         
-                        tabPanel("Sobre")
+             tabPanel("Sobre")
              
              
              ))
                      
-            
+      
  
 
 # 3. Server ---------------------------------------------------------------
@@ -125,7 +153,7 @@ server <- function(input, output)
    bperfil <- eventReactive(input$BAL1, {
   datatable(
     df %>% 
-      filter(Nome == input$CANDIDATO) %>% 
+      filter(`Sigla da Unidade Eleitoral` == input$UE & `Sigla do Partido` == input$PARTIDO & Nome == input$CANDIDATO) %>% 
       select(Nome, CPF, `Número do Título Eleitoral`, Sexo, `Cor ou Raça`, `Grau de Instrução`, Ocupação,
              `Estado Civil`, Nacionalidade, `Estado de Nascimento`, `Município de Nascimento`) %>% 
       unique()
@@ -137,7 +165,7 @@ server <- function(input, output)
    beleicoes <- eventReactive(input$BAL1, {
      datatable(
        df %>% 
-         filter(Nome == input$CANDIDATO) %>% 
+         filter(`Sigla da Unidade Eleitoral` == input$UE & `Sigla do Partido` == input$PARTIDO & Nome == input$CANDIDATO) %>% 
          select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`, `Sigla do Partido`,
                 `Sigla da Coligação`, `Composição da Coligação`, Votos)
     )
