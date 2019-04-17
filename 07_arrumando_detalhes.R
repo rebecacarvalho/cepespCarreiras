@@ -125,7 +125,7 @@ df_carreiras$DATA_NASCIMENTO<-as.Date(df_carreiras$DATA_NASCIMENTO, format="%d/%
 rm(tipoA) # removendo banco
 df_carreiras$tipoA <- NULL # Apagando variável auxiliar.
 
-# deixar nome das colunas bonitos -----
+# 06. deixar nome das colunas bonitos -----
 colnames(df_carreiras) <- c("Número do Título Eleitoral",
                             "Ano da Eleição",
                             "Nº do Turno",
@@ -149,6 +149,70 @@ colnames(df_carreiras) <- c("Número do Título Eleitoral",
                             "E-mail","Votos")
 df <-df_carreiras
 rm(df_carreiras)
+
+# 07. Inserir sigla atual dos partidos que mudaram de nome (Créditos: Mauricio) -----
+df$`Sigla Atual do Partido` <- recode(df$`Sigla do Partido`,
+                                      "DEM" = "PFL>DEM",
+                                      "GOV" = "GOV",
+                                      "LID" = "LID",
+                                      "MINORI" = "MINORI",
+                                      "PAN" = "PAN",
+                                      "PCB" = "PCB>PPS",
+                                      "PCdoB" = "PCdoB",
+                                      "PCN" = "PCN",
+                                      "PDC" = "PDC",
+                                      "pDIR" = "pDIR",
+                                      "PDS" = "PDS>PP",
+                                      "PDT" = "PDT",
+                                      "PEN" = "PEN",
+                                      "pESQ" = "pESQ",
+                                      "PFL" = "PFL>DEM",
+                                      "PHS" = "PHS",
+                                      "PJ" = "PJ>PTC",
+                                      "PL" = "PL>PR",
+                                      "PLENAR" = "PLENAR",
+                                      "PLP" = "PLP",
+                                      "PMB" = "PMB",
+                                      "PMB_1" = "PMB_1",
+                                      "PMDB" = "PMDB",
+                                      "PMN" = "PMN",
+                                      "PMR" = "PMR>PRB",
+                                      "PP" = "PDS>PP",
+                                      "PP_1" = "PP_1",
+                                      "PP_2" = "PP_2",
+                                      "PPB" = "PDS>PP",
+                                      "PPB_1" = "PPB_1",
+                                      "PPL" = "PPL",
+                                      "PPR" = "PDS>PP",
+                                      "PPS" = "PCB>PPS",
+                                      "PR" = "PL>PR",
+                                      "PRB" = "PMR>PRB",
+                                      "PRN" = "PJ>PTC",
+                                      "PRONA" = "PRONA",
+                                      "PROS" = "PROS",
+                                      "PRP" = "PRP",
+                                      "PRS" = "PRS",
+                                      "PRTB" = "PRTB",
+                                      "PSB" = "PSB",
+                                      "PSC" = "PSC",
+                                      "PSD" = "PSD",
+                                      "PSDB" = "PSDB",
+                                      "PSDC" = "PSDC",
+                                      "PSL" = "PSL",
+                                      "PSOL" = "PSOL",
+                                      "PST" = "PST",
+                                      "PSTU" = "PSTU",
+                                      "PT" = "PT",
+                                      "PTB" = "PTB",
+                                      "PTC" = "PJ>PTC",
+                                      "PTdoB" = "PTdoB",
+                                      "PTN" = "PTN",
+                                      "PTR" = "PTR",
+                                      "PV1" = "PV",
+                                      "REDE" = "REDE",
+                                      "S/PART" = "S/PART",
+                                      "SDD" = "SDD")
+
 # salvar banco final pronto ! -----
 save(df, file = "df.RData")
 
