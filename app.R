@@ -29,8 +29,12 @@ library(DT)
 
 # 1. Data ----------------------------------------------------------------
 
+siglas_atuais_partidos <- read_delim("~/cepesp/cepesp_carreiras/siglas_atuais_partidos.csv", 
+                                     ";", escape_double = FALSE, trim_ws = TRUE)
+
 df <- df %>% 
-  arrange(desc(`Ano da Eleição`))
+  arrange(desc(`Ano da Eleição`)) %>% 
+  na.omit()
 
 df <- df %>% 
   dplyr::arrange(Nome)
@@ -74,21 +78,9 @@ ui <- fluidPage(
                                                              "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"),
                                                  selected = "Todos"),
                                      
-                                     selectInput(inputId = "PARTIDO",
-                                                 label = "Selecione a sigla do partido do candidato",
-                                                 choices = c("Todos", "AVANTE", "DC", "DEM", "MDB","NOVO", "PAN", "PATRI", "PC do B", 
-                                                             "PCB", "PCO", "PDT", "PEN", "PFL", "PGT", "PHS", "PL", "PMB",
-                                                             "PMDB", "PMN", "PODE", "PP", "PPB", "PPL", "PPS", "PR", "PRB", 
-                                                             "PRN", "PRONA", "PROS", "PRP", "PRTB", "PSB", "PSC", "PSD", "PSDB", 
-                                                             "PSDC", "PSL", "PSN", "PSOL", "PST", "PSTU", "PT", "PT do B", "PTB",
-                                                             "PTC", "PTN", "PV", "REDE", "SD", "SOLIDARIEDADE"),
-                                                 selected = "Todos"),
+                                     uiOutput("PARTIDO"),
                                      
-                                     selectInput(inputId = "CANDIDATO",
-                                               label = "Digite o nome do candidato",
-                                               choices = unique(df$Nome),
-                                               selected = " "),
-                                     
+                                     uiOutput("CANDIDATO"),
                                      
                                      actionButton(inputId = "BAL1",
                                                   label = strong("Atualizar"),
@@ -121,12 +113,57 @@ ui <- fluidPage(
 
 server <- function(input, output)
 {
+
+  
+  
+# Selecao do partido  
+    
+  output$PARTIDO <- renderUI({
+    ue <- input$UE
+    if(ue == "Todos"){
+      selectizeInput(inputId = "PARTIDO",
+                     label = "Selecione a sigla do partido do candidato",
+                     choices = c("Todos", "AVANTE", "DC", "DEM", "MDB","NOVO", "PAN", "PATRI", "PC do B", 
+                                           "PCB", "PCO", "PDT", "PEN", "PFL", "PGT", "PHS", "PL", "PMB",
+                                           "PMDB", "PMN", "PODE", "PP", "PPB", "PPL", "PPS", "PR", "PRB", 
+                                           "PRN", "PRONA", "PROS", "PRP", "PRTB", "PSB", "PSC", "PSD", "PSDB", 
+                                           "PSDC", "PSL", "PSN", "PSOL", "PST", "PSTU", "PT", "PT do B", "PTB",
+                                           "PTC", "PTN", "PV", "REDE", "SD", "SOLIDARIEDADE"),
+                     selected = "Todos")
+    } else{
+    selectInput(inputId = "PARTIDO",
+                label = "Selecione a sigla do partido do candidato",
+                choices = df[df$`Sigla da Unidade Eleitoral`== input$UE, "Sigla do Partido"])
+    }
+    })
+    
+  
+  
+  
+# Selecao do candidato  
+  
+  output$CANDIDATO <- renderUI({
+    ue <- input$UE
+    partido <- input$PARTIDO
+    if(ue == "Todos" & partido == "Todos"){
+      selectizeInput(inputId = "CANDIDATO",
+                     label = "Digite o nome do candidato",
+                     choices = unique(df$Nome))
+    } else{
+      selectInput(inputId = "CANDIDATO",
+                label = "Digite o nome do candidato",
+     
+                   choices = df[df$`Sigla da Unidade Eleitoral`== input$UE & df$`Sigla do Partido` == input$PARTIDO, "Nome"])
+      }
+      })  
+  
   
 # 3.1. Tabelas ------------------------------------------------------------  
 
   
   
 # Perfil do Candidato
+  
   
   output$perfil <- DT::renderDataTable(
     bperfil()
