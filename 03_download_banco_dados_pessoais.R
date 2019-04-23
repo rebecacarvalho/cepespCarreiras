@@ -17,6 +17,7 @@ library(tidyverse)
 columns <- list("ANO_ELEICAO",
                 "NUM_TURNO",
                 "NOME_CANDIDATO",
+                "NOME_URNA_CANDIDATO",
                 "CPF_CANDIDATO",
                 "NUM_TITULO_ELEITORAL_CANDIDATO",
                 "DESCRICAO_SEXO", 

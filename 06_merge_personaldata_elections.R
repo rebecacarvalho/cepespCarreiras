@@ -19,6 +19,6 @@ perdasmerge <- df_carreiras[is.na(df_carreiras$CPF_CANDIDATO)==T,] # 0 perdas. U
 rm(perdasmerge)
 
 # Salvando o banco ----
-save(df_carreiras, file = "df_carreiras.RData")
+saveRDS(df_carreiras, file = "df_carreiras.rds")
 
 rm(elections,personaldata) # removendo bancos

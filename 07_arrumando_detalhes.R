@@ -6,7 +6,7 @@ library(tidyverse)
 library(stringr)
 
 # Carregando banco -------
-load("df_carreiras.RData")
+df_carreiras <- readRDS("~/Documents/cepesp/app_carreiras/df_carreiras.rds")
 
 # 01. Substituir #NE# p/ "Indisponivel"----
   ##1.0. Mas antes... Passar e-mail p/ caixa baixa
@@ -133,6 +133,8 @@ colnames(df_carreiras) <- c("Número do Título Eleitoral",
                             "Sigla da Unidade Eleitoral",
                             "Unidade Eleitoral",
                             "Situação da Candidatura",
+                            "Número de urna",
+                            "Nome de urna da eleição",
                             "Sigla do Partido",
                             "Sigla da Coligação",
                             "Composição da Coligação",
@@ -140,7 +142,7 @@ colnames(df_carreiras) <- c("Número do Título Eleitoral",
                             "Situação de Totalização do Turno",
                             "Última Eleição Concorrida",
                             "Chave",
-                            "Nome","CPF","Sexo","Cor ou Raça",
+                            "Nome","Nome de urna (última eleição)","CPF","Sexo","Cor ou Raça",
                             "Grau de Instrução",
                             "Ocupação",
                             "Estado Civil","Nacionalidade",
@@ -214,7 +216,7 @@ df$`Sigla Atual do Partido` <- recode(df$`Sigla do Partido`,
                                       "SDD" = "SDD")
 
 # salvar banco final pronto ! -----
-save(df, file = "df.RData")
+saveRDS(df, file = "df.rds")
 
 write_delim(df, path = "df.csv", delim = ";", na = "NA", append = F,
             col_names = T, quote_escape = "double")

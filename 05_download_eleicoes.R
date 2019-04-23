@@ -3,12 +3,6 @@
 
 # Carregando pacotes ----
 library(cepespR)
-library(dplyr)
-library(ggplot2)
-library(httr)
-library(readr)
-library(utils)
-library(jsonlite)
 library(tidyverse)
 
 # Download dos bancos de dados ----
@@ -19,8 +13,10 @@ library(tidyverse)
 # selecionando colunas:
 columns <- list("ANO_ELEICAO","NUM_TURNO","NUM_TITULO_ELEITORAL_CANDIDATO",
                 "DESCRICAO_CARGO","SIGLA_UE","DESCRICAO_UE","DES_SITUACAO_CANDIDATURA",
+                "NUMERO_CANDIDATO","NOME_URNA_CANDIDATO",
                 "SIGLA_PARTIDO","SIGLA_COLIGACAO","COMPOSICAO_COLIGACAO",
-                "QTDE_VOTOS","DESC_SIT_TOT_TURNO")
+                "QTDE_VOTOS","DESC_SIT_TOT_TURNO") # Inserir "NOME_URNA_CANDIDATO".
+
 cargos_nacionais <- c("Presidente", "Governador", "Senador", "Deputado Federal", "Deputado Estadual")
 
 # 1.1. Eleições nacionais - Download ----
