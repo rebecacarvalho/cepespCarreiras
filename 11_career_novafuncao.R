@@ -3,6 +3,9 @@ rm(list=ls())
 library(dplyr)
 library(cepespR)
 
+# Função carrer. Indicar o string com o nome no argumento 'nome =' e indicar se TRUE or FALSE em 
+# 'nome_urna =' .TRUE se o nome buscado for o (ou parte do) nome de urna.
+
 career <- function(nome, nome_urna = TRUE) {
   if(nome_urna){
   consulta <- cepespR::get_careers(NOME_URNA_CANDIDATO = nome)

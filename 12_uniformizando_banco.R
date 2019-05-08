@@ -1,19 +1,18 @@
 library(stringr)
 
-x <- career(nome = "Haddad", nome_urna = T)
-x <- x %>% distinct(NUM_TITULO_ELEITORAL_CANDIDATO, .keep_all = T)
+x <- career(nome = "Dilma", nome_urna = T)
 
-args <- expand.grid(NUM_TITULO_ELEITORAL_CANDIDATO = x$NUM_TITULO_ELEITORAL_CANDIDATO)
-df_carreiras <- purrr::pmap(args, cepespR::get_careers_elections)
-
-x<- NA
-for (i in df_carreiras) {
-        x <- rbind(x,as.data.frame(i))
+lista <- as.list(x$NUM_TITULO_ELEITORAL_CANDIDATO)
+df_carreiras <- NA
+for (i in lista){
+  y <- cepespR::get_careers_elections(NUM_TITULO_ELEITORAL_CANDIDATO = i)  
+  df_carreiras <- rbind(df_carreiras,y)
 }
-x[1,] <- NULL
-df_carreiras <- as.data.frame(x)
+df_carreiras <- df_carreiras[-1,]
+rm(x,y,i,lista)
 
 
+### LIMPEZA DO BANCO ####
 
 # 01. Substituir #NE# p/ "Indisponivel"----
 ##1.0. Mas antes... Passar e-mail p/ caixa baixa
@@ -24,9 +23,12 @@ df_carreiras$EMAIL_CANDIDATO[df_carreiras$EMAIL_CANDIDATO=="#nulo#"] <- "Indispo
 
 ## 1.2. Na sigla e composição da coligacao
 df_carreiras$SIGLA_LEGENDA[df_carreiras$SIGLA_LEGENDA=="#NE#"] <- "Indisponivel"
-df_carreiras$SIGLA_LEGENDA[df_carreiras$SIGLA_COLIGACAO=="#NULO#"] <- "Indisponivel"
+df_carreiras$SIGLA_LEGENDA[df_carreiras$SIGLA_LEGENDA=="#NULO#"] <- "Indisponivel"
 df_carreiras$COMPOSICAO_LEGENDA[df_carreiras$COMPOSICAO_LEGENDA=="#NE#"] <- "Indisponivel"
 df_carreiras$COMPOSICAO_LEGENDA[df_carreiras$COMPOSICAO_LEGENDA=="#NULO#"] <- "Indisponivel"
+df_carreiras$NOME_COLIGACAO[df_carreiras$NOME_COLIGACAO=="#NULO#"] <-  "Indisponivel"
+df_carreiras$NOME_COLIGACAO[df_carreiras$NOME_COLIGACAO=="#NE#"] <-  "Indisponivel"
+
 ## 1.3. Na descrição COR/RAÇA
 df_carreiras$DESCRICAO_COR_RACA[df_carreiras$DESCRICAO_COR_RACA=="#NE#"] <- "Indisponivel"
 ## 1.4. Idade
@@ -52,7 +54,10 @@ df_carreiras$DESCRICAO_OCUPACAO <- str_to_title(df_carreiras$DESCRICAO_OCUPACAO)
 df_carreiras$NOME_MUNICIPIO_NASCIMENTO <- str_to_title(df_carreiras$NOME_MUNICIPIO_NASCIMENTO)
 ## 2.8. Nacionalidade
 df_carreiras$DESCRICAO_NACIONALIDADE <- str_to_title(df_carreiras$DESCRICAO_NACIONALIDADE)
-## 2.9. Sexo e estado civil
+## 2.9. Nome do Partido e da Coligação
+# df_carreiras$NOME_COLIGACAO <- str_to_title(df_carreiras$NOME_COLIGACAO) # Desativei porque tem muita sigla de partido e número romano no meio.
+df_carreiras$NOME_PARTIDO <- str_to_title(df_carreiras$NOME_PARTIDO)
+## 2.10. Sexo e estado civil
 df_carreiras$DESCRICAO_SEXO <- str_to_title(df_carreiras$DESCRICAO_SEXO)
 df_carreiras$DESCRICAO_ESTADO_CIVIL <- str_to_lower(df_carreiras$DESCRICAO_ESTADO_CIVIL)
 df_carreiras$DESCRICAO_ESTADO_CIVIL <- paste0(str_to_upper(substring(df_carreiras$DESCRICAO_ESTADO_CIVIL,1,1)), 
@@ -74,10 +79,8 @@ df_carreiras$TOTAL_VOTACAO <- as.numeric(df_carreiras$TOTAL_VOTACAO)
 df_carreiras$Votos <- format(df_carreiras$TOTAL_VOTACAO,big.mark = ".",decimal.mark = ",")
 # O mesmo p/ despesa máxima de campanha ----
 df_carreiras$DESPESA_MAX_CAMPANHA <- as.numeric(df_carreiras$DESPESA_MAX_CAMPANHA)
-df_carreiras$DESPESA_MAX_CAMPANHA <- format(df_carreiras$DESPESA_MAX_CAMPANHA,
-                                            big.mark = ".",decimal.mark = ",")
-df_carreiras$DESPESA_MAX_CAMPANHA[df_carreiras$DESPESA_MAX_CAMPANHA=="        -1"] <- "Indisponivel"
-
+df_carreiras$despesa <- format(df_carreiras$DESPESA_MAX_CAMPANHA,big.mark = ".",decimal.mark = ",")
+df_carreiras$despesa[df_carreiras$despesa=="         -1"] <- "Indisponível"
 
 # 05. Data de nascimento -----
 # Formatos:
@@ -134,32 +137,54 @@ df_carreiras$tipoA <- NULL # Apagando variável auxiliar.
 df_carreiras$DESCRICAO_ELEICAO <- NULL
 
 # 06. deixar nome das colunas bonitos -----
-colnames(df_carreiras) <- c("Número do Título Eleitoral",
-                            "Ano da Eleição",
+colnames(df_carreiras) <- c("Ano da Eleição",
                             "Nº do Turno",
-                            "Cargo",
+                            "Sigla da Unidade Federativa",
                             "Sigla da Unidade Eleitoral",
                             "Unidade Eleitoral",
-                            "Situação da Candidatura",
+                            "Código do Cargo",
+                            "Cargo",
+                            "Nome",
                             "Número de urna",
-                            "Nome de urna da eleição",
+                            "CPF",
+                            "Nome de urna do candidato",
+                            "Código da situação de candidatura",
+                            "Situação da candidatura",
+                            "Número do Partido",
                             "Sigla do Partido",
+                            "Nome do Partido",
+                            "Código da Coligação",
                             "Sigla da Coligação",
                             "Composição da Coligação",
-                            "Quantidade de Votos",
-                            "Situação de Totalização do Turno",
-                            "Última Eleição Concorrida",
-                            "Chave",
-                            "Nome","Nome de urna (última eleição)","CPF","Sexo","Cor ou Raça",
-                            "Grau de Instrução",
+                            "Nome da Coligação",
+                            "Código da ocupação",
                             "Ocupação",
-                            "Estado Civil","Nacionalidade",
-                            "Estado de Nascimento","Município de Nascimento",
-                            "Data de Nascimento","Idade na data da eleição",
-                            "E-mail","Votos")
+                            "Data de nascimento",
+                            "Número do Título Eleitoral",
+                            "Idade na data da eleição",
+                            "Código do Sexo",
+                            "Sexo",
+                            "Código do grau de instrução",
+                            "Grau de instrução",
+                            "Código do estado civil",
+                            "Estado civil",
+                            "Código da cor ou raça",
+                            "Cor ou raça",
+                            "Código nacionalidade",
+                            "Nacionalidade",
+                            "Estado de nascimento",
+                            "Código do município de nascimento",
+                            "Município de nascimento",
+                            "DESPESA_MAX_CAMPANHA",
+                            "Código da situação de totalização do turno",
+                            "Situação de totalização do turno",
+                            "E-mail",
+                            "Quantidade de Votos",
+                            "Votos",
+                            "Despesa máxima de campanha")
 
 # 07. Inserir sigla atual dos partidos que mudaram de nome (Créditos: Mauricio) -----
-df_carreiras$`Sigla Atual do Partido` <- recode(df$`Sigla do Partido`,
+df_carreiras$`Sigla Atual do Partido` <- recode(df_carreiras$`Sigla do Partido`,
                                       "DEM" = "PFL>DEM",
                                       "GOV" = "GOV",
                                       "LID" = "LID",
