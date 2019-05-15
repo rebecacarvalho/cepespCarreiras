@@ -12,38 +12,50 @@ library(knitr)
 library(plyr)
 library(tidyverse)
 library(lubridate)
-library(shiny)
-library(shinyalert)
-library(shinyBS)
 library(ggplot2)
 library(shiny)
 library(readr)
-library(shiny)
 library(shinythemes)
 library(magrittr)
-library(shinydashboard)
-library(shinyWidgets)
-library(shinyjs)
 library(plotly)
 library(DT)
 
-
+cepespR::get_careers()
 
 # 1. Data ----------------------------------------------------------------
 
-df <- readRDS("df.rds")
 
-df <- df %>% 
-  arrange(desc(`Ano da Eleição`)) %>% 
-  na.omit()
+career <- function(nome, nome_urna = TRUE) {
+  if(nome_urna){
+    consulta <- cepespR::get_careers(NOME_URNA_CANDIDATO = nome)
+  } else {
+    consulta <- cepespR::get_careers(NOME_CANDIDATO = nome)
+  }
+  
+  args <- expand.grid(ID_DIM_CANDIDATO = consulta$ID)
+  all_options <- purrr::pmap(args, cepespR::get_careers_elections)
+  all_options <- purrr::map(all_options, dplyr::select, NOME_CANDIDATO, NUM_TITULO_ELEITORAL_CANDIDATO, ANO_ELEICAO, NUM_TURNO, SIGLA_PARTIDO, SIGLA_UE)
+  
+  x<-NA
+  for (i in all_options) {
+    x <- rbind(x, as.data.frame(i))
+  }
+  x <- x %>% filter(is.na(NOME_CANDIDATO)==F)
+  all_options <- x
+  # Filtro p/ manter apenas o último ano de eleição
+  all_options <- all_options %>% 
+    filter(NUM_TURNO==1) %>%
+    group_by(NUM_TITULO_ELEITORAL_CANDIDATO) %>%
+    mutate(ultimaeleicao=max(ANO_ELEICAO)) %>%
+    ungroup() %>%
+    filter(ANO_ELEICAO==ultimaeleicao)
+  # Crio a variável com o texto do dropdown
+  all_options$dropdown <- paste0(all_options$NOME_CANDIDATO," - ",all_options$SIGLA_UE," - ",all_options$SIGLA_PARTIDO)
+  all_options <- all_options[,c("dropdown","NUM_TITULO_ELEITORAL_CANDIDATO")]
+  rm(consulta,x,args,i)
+  all_options
+}
 
-df$`Nome de urna (última eleição)` <- str_to_title(df$`Nome de urna (última eleição)`)
-
-df$`Nome de urna` <- paste0(df$`Nome de urna (última eleição)`," ","(", df$`Sigla do Partido`,
-                            "-",df$`Sigla da Unidade Eleitoral`,")")
-
-df <- df %>% 
-  dplyr::arrange(`Nome de urna`, `Sigla do Partido`)
 
 
 
@@ -152,14 +164,13 @@ server <- function(input, output)
     if(ue == "Todas as unidades eleitorais" & partido == "Todos os partidos"){
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
-                     choices = unique(df$`Nome de urna`),
-                     selected = NULL,
-                     options = list(placeholder = 'Digite o nome do candidato')
+                     choices = career(),
+                     options = list(placeholder = 'Digite o nome do candidato'))
     } 
     else if(ue == input$UE & partido == "Todos os partidos"){
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
-                     choices = df[df$`Sigla da Unidade Eleitoral`== input$UE, "Nome de urna"],
+                     choices = carrer[df$`Sigla da Unidade Eleitoral`== input$UE, "Nome de urna"],
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
      }

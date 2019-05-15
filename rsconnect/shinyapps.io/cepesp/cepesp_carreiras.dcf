@@ -1,0 +1,13 @@
+name: cepesp_carreiras
+title: cepesp_carreiras
+username:
+account: cepesp
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 887797
+bundleId: 2035941
+url: https://cepesp.shinyapps.io/cepesp_carreiras/
+when: 1556118936.70371
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 01_download_api_candidatos.R|02_construcao_chave_candidatos.R|03_download_banco_dados_pessoais.R|04_chave_merge_personaldata.R|05_download_eleicoes.R|06_merge_personaldata_elections.R|07_arrumando_detalhes.R|98_refinando_banco_cpfs_titulos_duplicados.R|99_testes_cpf_titulo.R|siglas_atuais_partidos.csv
