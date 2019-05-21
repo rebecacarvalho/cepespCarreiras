@@ -12,18 +12,12 @@ library(knitr)
 library(plyr)
 library(tidyverse)
 library(lubridate)
-library(shiny)
-library(shinyalert)
-library(shinyBS)
 library(ggplot2)
 library(shiny)
 library(readr)
 library(shiny)
 library(shinythemes)
 library(magrittr)
-library(shinydashboard)
-library(shinyWidgets)
-library(shinyjs)
 library(plotly)
 library(DT)
 
@@ -39,11 +33,13 @@ df <- df %>%
 
 df$`Nome de urna (última eleição)` <- str_to_title(df$`Nome de urna (última eleição)`)
 
+
 df$`Nome de urna` <- paste0(df$`Nome de urna (última eleição)`," ","(", df$`Sigla do Partido`,
                             "-",df$`Sigla da Unidade Eleitoral`,")")
 
 df <- df %>% 
-  dplyr::arrange(`Nome de urna`, `Sigla do Partido`)
+  dplyr::arrange(`Nome de urna`, `Sigla do Partido`) 
+
 
 
 
@@ -64,9 +60,11 @@ ui <- fluidPage(
                                      
                                      selectizeInput(inputId = "UE",
                                                     label = NULL,
-                                                    choices = c("","Todas as unidades eleitorais", "AC", "AL", "AM", "AP", "BA", "BR", "CE", "DF", "ES",
-                                                                "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI",
-                                                                "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"),
+                                                    choices = c("","Todas as unidades eleitorais", "AC", 
+                                                                "AL", "AM", "AP", "BA", "BR", "CE", "DF", "ES",
+                                                                "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", 
+                                                                "PI","PR", "RJ", "RN", "RO", "RR", "RS", "SC", 
+                                                                "SE", "SP", "TO"),
                                                     selected = NULL, 
                                                     options = list(placeholder = 'Escolha uma unidade eleitoral')),
                                      
@@ -91,14 +89,14 @@ ui <- fluidPage(
                                      ".dataTables_filter, .dataTables_info { display: none; }",
                                      ".dataTable( {'lengthChange': false});"),
                           br(),
-                          dataTableOutput("perfil", width = "110%"),
+                          dataTableOutput("perfil"),
                           br(),
                           br(),
                           br(),
                           br(),
                           br(),
                           br(),
-                          dataTableOutput("eleicoes", width = "110%")
+                          dataTableOutput("eleicoes")
                         ))),
              
              tabPanel("Sobre")
@@ -111,15 +109,19 @@ ui <- fluidPage(
 
 # 3. Server ---------------------------------------------------------------
 
-server <- function(input, output)
-{
+server <- function(input, output){
+  
+  nomes <- reactive({
+   df$`Número do Título Eleitoral` = df$`Nome de urna`
+  })
+  
   
   
   # Selecao do partido  
   
   output$PARTIDO <- renderUI({
-    ue <- input$UE
-    if(ue == "Todas as unidades eleitorais"){
+    ue <- req(input$UE)
+   if(ue == "Todas as unidades eleitorais"){
       selectizeInput(inputId = "PARTIDO",
                      label = NULL,
                      choices = c("","Todos os partidos", "AVANTE", "DC", "DEM", "MDB","NOVO", "PAN", "PATRI", "PC do B", 
@@ -133,13 +135,11 @@ server <- function(input, output)
     } else{
       selectizeInput(inputId = "PARTIDO",
                      label = NULL,
-                     choices = c("", "Todos os partidos",df[df$`Sigla da Unidade Eleitoral`== input$UE, "Sigla do Partido"]),
+                     choices = c("", "Todos os partidos",df[df$`Sigla da Unidade Eleitoral`== req(input$UE), "Sigla do Partido"]),
                      selected = NULL,
                      options = list(placeholder = 'Escolha a sigla do partido'))
     }
   })
-  
-  
   
   
   # Selecao do candidato  
@@ -147,33 +147,34 @@ server <- function(input, output)
   
   
   output$CANDIDATO <- renderUI({
-    ue <- input$UE
-    partido <- input$PARTIDO
+    ue <- req(input$UE)
+    partido <- req(input$PARTIDO)
     if(ue == "Todas as unidades eleitorais" & partido == "Todos os partidos"){
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
-                     choices = unique(df$`Nome de urna`),
+                     choices = nomes(),
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
     } 
-    else if(ue == input$UE & partido == "Todos os partidos"){
+    else if(ue == req(input$UE) & partido == "Todos os partidos"){
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
-                     choices = df[df$`Sigla da Unidade Eleitoral`== input$UE, "Nome de urna"],
+                     choices = df[df$`Sigla da Unidade Eleitoral`== req(input$UE), "Nome de urna"],
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
     }
-    else if(ue == "Todas as unidades eleitorais" & partido == input$PARTIDO){
+    else if(ue == "Todas as unidades eleitorais" & partido == req(input$PARTIDO)){
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
-                     choices = df[df$`Sigla do Partido` == input$PARTIDO, "Nome de urna"],
+                     choices = df[df$`Sigla do Partido` == req(input$PARTIDO), "Nome de urna"],
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
     } else {
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
                      
-                     choices = df[df$`Sigla da Unidade Eleitoral`== input$UE & df$`Sigla do Partido` == input$PARTIDO, "Nome de urna"],
+                     choices = df[df$`Sigla da Unidade Eleitoral`== req(input$UE) & 
+                                    df$`Sigla do Partido` == req(input$PARTIDO), "Nome de urna"],
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
     }
@@ -208,33 +209,34 @@ server <- function(input, output)
       
       bperfil <- eventReactive(input$BAL1, {
         datatable({
-          ue <- input$UE
-          partido <- input$PARTIDO
-          candidato <- input$CANDIDATO
+          ue <- req(input$UE)
+          partido <- req(input$PARTIDO)
+          candidato <- req(input$CANDIDATO)
           if(ue == "Todas as unidades eleitorais" & partido == "Todos os partidos"){
             df %>% 
-              filter(`Nome de urna` == input$CANDIDATO) %>% 
+              filter(nomes() == req(input$CANDIDATO)) %>% 
               select(Nome, CPF, `Número do Título Eleitoral`, Sexo, `Cor ou Raça`, `Grau de Instrução`, Ocupação,
                      `Estado Civil`, Nacionalidade, `Estado de Nascimento`, `Município de Nascimento`) %>% 
               unique()
           }
-          else if(ue == "Todas as unidades eleitorais" & partido == input$PARTIDO){
+          else if(ue == "Todas as unidades eleitorais" & partido == req(input$PARTIDO)){
             df %>% 
-              filter(`Nome de urna` == input$CANDIDATO) %>% 
+              filter(nomes() == req(input$CANDIDATO)) %>% 
               select(Nome, CPF, `Número do Título Eleitoral`, Sexo, `Cor ou Raça`, `Grau de Instrução`, Ocupação,
                      `Estado Civil`, Nacionalidade, `Estado de Nascimento`, `Município de Nascimento`) %>% 
               unique()
             
           } 
-          else if(ue == input$UE & partido == "Todos os partidos"){
+          else if(req(ue == input$UE) & partido == "Todos os partidos"){
             df %>% 
-              filter(`Nome de urna` == input$CANDIDATO ) %>% 
+              filter(nomes() == req(input$CANDIDATO)) %>% 
               select(Nome, CPF, `Número do Título Eleitoral`, Sexo, `Cor ou Raça`, `Grau de Instrução`, Ocupação,
                      `Estado Civil`, Nacionalidade, `Estado de Nascimento`, `Município de Nascimento`) %>% 
               unique()
           } else {
             df %>% 
-              filter(`Sigla da Unidade Eleitoral` == input$UE & `Sigla do Partido` == input$PARTIDO & `Nome de urna` == input$CANDIDATO) %>% 
+              filter(`Sigla da Unidade Eleitoral` == req(input$UE) & `Sigla do Partido` == req(input$PARTIDO) & 
+                       `Nome de urna` == req(input$CANDIDATO)) %>% 
               select(Nome, CPF, `Número do Título Eleitoral`, Sexo, `Cor ou Raça`, `Grau de Instrução`, Ocupação,
                      `Estado Civil`, Nacionalidade, `Estado de Nascimento`, `Município de Nascimento`) %>% 
               unique()
@@ -245,31 +247,32 @@ server <- function(input, output)
       
       beleicoes <- eventReactive(input$BAL1, {
         datatable({
-          ue <- input$UE
-          partido <- input$PARTIDO
-          candidato <- input$CANDIDATO
-          if(ue == "Todas as unidades eleitorais" & partido == "Todos os partidos"){
+          ue <- req(input$UE)
+          partido <- req(input$PARTIDO)
+          candidato <- req(input$CANDIDATO)
+         if(ue == "Todas as unidades eleitorais" & partido == "Todos os partidos"){
             df %>% 
-              filter(`Nome de urna` == input$CANDIDATO) %>% 
-              select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`, `Número de urna`, `Sigla do Partido`,
-                     `Sigla Atual do Partido`,`Composição da Coligação`, Votos)
+              filter(nomes() == req(input$CANDIDATO)) %>% 
+              select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`, 
+                     `Número de urna`, `Sigla do Partido`, `Sigla Atual do Partido`,`Composição da Coligação`, Votos)
           }
-          else if(ue == "Todas as unidades eleitorais" & partido == input$PARTIDO){
+          else if(ue == "Todas as unidades eleitorais" & req(partido == input$PARTIDO)){
             df %>% 
-              filter(`Nome de urna` == input$CANDIDATO) %>% 
-              select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`, `Número de urna`, `Sigla do Partido`,
-                     `Sigla Atual do Partido`,`Composição da Coligação`, Votos)
+              filter(nomes() == req(input$CANDIDATO)) %>% 
+              select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`, 
+                     `Número de urna`, `Sigla do Partido`, `Sigla Atual do Partido`,`Composição da Coligação`, Votos)
           }
-          else if(ue == input$UE & partido == "Todos os partidos"){
+          else if(ue == req(input$UE) & partido == "Todos os partidos"){
             df %>% 
-              filter(`Nome de urna` == input$CANDIDATO) %>% 
-              select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`, `Número de urna`, `Sigla do Partido`,
-                     `Sigla Atual do Partido`,`Composição da Coligação`, Votos)
+              filter(nomes() == req(input$CANDIDATO)) %>% 
+              select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`,
+                     `Número de urna`, `Sigla do Partido`, `Sigla Atual do Partido`,`Composição da Coligação`, Votos)
           } else{
             df %>% 
-              filter(`Sigla da Unidade Eleitoral` == input$UE & `Sigla do Partido` == input$PARTIDO & `Nome de urna` == input$CANDIDATO) %>%  
-              select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`, `Número de urna`,`Sigla do Partido`,
-                     `Sigla Atual do Partido`,`Composição da Coligação`, Votos)
+              filter(`Sigla da Unidade Eleitoral` == req(input$UE) & `Sigla do Partido` == req(input$PARTIDO) & 
+                       `Nome de urna` == req(input$CANDIDATO)) %>%  
+              select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`,
+                     `Número de urna`,`Sigla do Partido`,`Sigla Atual do Partido`,`Composição da Coligação`, Votos)
             
           }
         })
