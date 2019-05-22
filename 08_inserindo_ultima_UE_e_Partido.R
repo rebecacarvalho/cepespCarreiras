@@ -16,3 +16,4 @@ df <- left_join(x = df, y = ultima_eleicao, by = 'Número do Título Eleitoral')
 rm(ultima_eleicao)
 
 saveRDS(df, "df.rds")
+write_delim(df, path = 'df_UTC8.csv', delim = ';')
