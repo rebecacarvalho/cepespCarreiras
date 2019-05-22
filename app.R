@@ -21,31 +21,12 @@ library(shinythemes)
 library(magrittr)
 library(plotly)
 library(DT)
-
+library(R.utils)
 
 
 # 1. Data ----------------------------------------------------------------
 
-df <- read_delim("~/cepesp/cepesp_carreiras/df.txt", 
-                 ";", escape_double = FALSE, trim_ws = TRUE)
-
-df <- df %>% 
-  arrange(desc(`Ano da Eleição`)) %>% 
-  na.omit()
-
-df$`Nome de urna (última eleição)` <- str_to_title(df$`Nome de urna (última eleição)`)
-
-df$`Situação de Totalização do Turno` <- str_to_title(df$`Situação de Totalização do Turno`)
-
-
-df$`Nome de urna` <- paste0(df$`Nome de urna (última eleição)`," ","(", df$`Último Partido`,
-                            "-",df$`Última UE`,")")
-
-df <- df %>% 
-  dplyr::arrange(`Nome de urna`, `Sigla do Partido`) 
-
-df$`Número do Título Eleitoral` <- as.numeric(df$`Número do Título Eleitoral`) 
- 
+df <- read_rds("df.rds")
 
 
 # 2. User interface -------------------------------------------------------
