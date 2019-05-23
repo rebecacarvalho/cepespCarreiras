@@ -80,22 +80,10 @@ ui <- fluidPage(
                           dataTableOutput("eleicoes")
                         ))),
              
-             tabPanel("Sobre")
+             tabPanel("Sobre")))
              
              
-  ),
-
-tags$footer("© 2019 CEPESP Todos os direitos reservados.", align = "left", style = "
-              position:absolute;
-              bottom:0;
-              width:25%;
-              height:40px;   /* Height of the footer */
-              color: #2c3e50;
-              padding: 10px;
-              background-color: white;
-              z-index: 1000;")
-
-  )
+  
 
 
 
@@ -103,11 +91,6 @@ tags$footer("© 2019 CEPESP Todos os direitos reservados.", align = "left", styl
 # 3. Server ---------------------------------------------------------------
 
 server <- function(input, output){
-  
-  nomes <- reactive({
-   df$`Número do Título Eleitoral` = df$`Nome de urna`
-  })
-  
   
   
   # Selecao do partido  
@@ -146,22 +129,22 @@ server <- function(input, output){
     if(ue == req(input$UE) & partido == "Todos os partidos"){
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
-                     choices = c("",df[df$`Sigla da Unidade Eleitoral`== req(input$UE), "Nome de urna"]),
+                     choices = c("",unique(df[df$`Sigla da Unidade Eleitoral`== req(input$UE), "Nome de urna"])),
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
     }
     else if(ue == "Todas as unidades eleitorais" & partido == req(input$PARTIDO)){
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
-                     choices = c("",df[df$`Sigla do Partido` == req(input$PARTIDO), "Nome de urna"]),
+                     choices = c("",unique(df[df$`Sigla do Partido` == req(input$PARTIDO), "Nome de urna"])),
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
     } else {
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
                      
-                     choices = c("",df[df$`Sigla da Unidade Eleitoral`== req(input$UE) & 
-                                    df$`Sigla do Partido` == req(input$PARTIDO), "Nome de urna"]),
+                     choices = c("",unique(df[df$`Sigla da Unidade Eleitoral`== req(input$UE) & 
+                                    df$`Sigla do Partido` == req(input$PARTIDO), "Nome de urna"])),
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
     }
