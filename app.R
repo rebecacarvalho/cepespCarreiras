@@ -80,7 +80,7 @@ ui <- fluidPage(
                           dataTableOutput("eleicoes")
                         ))),
              
-             tabPanel("Sobre")))
+             tabPanel("Sobre", htmlOutput("Note"))))
              
              
   
@@ -91,6 +91,15 @@ ui <- fluidPage(
 # 3. Server ---------------------------------------------------------------
 
 server <- function(input, output){
+  
+  #Sobre 
+  output$Note <- renderUI({
+    note <- paste0("
+                   <font size='3'> 
+                   O CepespCarreiras foi criado a partir de dados do TSE, tratados e agregados pela equipe do CepespData, permitindo a consulta aos cargos já concorridos e ocupados por um mesmo político.  Atualmente, inclui as eleições nacionais e estaduais (1998 a 2018). As eleições a nível municipal serão incorporadas futuramente.</font>")
+    HTML(note)
+  })
+  
   
   
   # Selecao do partido  
