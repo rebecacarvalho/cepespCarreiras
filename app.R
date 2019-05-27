@@ -112,13 +112,13 @@ server <- function(input, output){
       selectizeInput(inputId = "PARTIDO",
                      label = NULL,
                      choices = c("", "Todos os partidos",
-                                 df[df$`Sigla da Unidade Eleitoral`== req(input$UE), "Sigla do Partido"]),
+                                 unique(df[df$`Sigla da Unidade Eleitoral`== req(input$UE), "Sigla do Partido"])),
                      selected = NULL,
                      options = list(placeholder = 'Escolha a sigla do partido'))
     }
   })
   
-  
+ 
   # Selecao do candidato  
   
   
@@ -148,11 +148,9 @@ server <- function(input, output){
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
     }
-  })  
-      
-      
-      
-      
+  })
+  
+ 
       
 # 3.1. Tabelas ------------------------------------------------------------  
       
@@ -187,7 +185,7 @@ server <- function(input, output){
           candidato <- req(input$CANDIDATO)
           if(ue == "Todas as unidades eleitorais" & partido == req(input$PARTIDO)){
             df %>% 
-              dplyr::filter(`Nome de urna` == req(input$CANDIDATO)) %>% 
+              dplyr::filter(`Nome de urna`== req(input$CANDIDATO)) %>% 
               dplyr::select(Nome, CPF, `Número do Título Eleitoral`, Sexo, `Cor ou Raça`, `Grau de Instrução`, `Ocupação`,
                      `Estado Civil`, Nacionalidade, `Estado de Nascimento`, `Município de Nascimento`) %>% 
               unique()
