@@ -34,15 +34,25 @@ df <- read_rds("df.rds")
 
 ui <- fluidPage(
   
+  tags$head(
+    tags$style(HTML(".navbar .navbar-nav {float: left}
+          .navbar .navbar-header {float: right}"))),
   
-  navbarPage("CepespCarreiras", theme = shinytheme("flatly"),
+  
+  navbarPage(
+    tags$div(class = "header", checked = NA,
+             tags$a(href = "http://www.cepesp.io/cepesp-data/", "Ir para CepespData")),
+    
+    id = "CepespCarreiras", theme = shinytheme("flatly"),
              
              
              tabPanel("Eleições",
                       
+                      
+                      
                       sidebarLayout(
                         
-                        sidebarPanel(h4("Opções:"),br(), width = 3,
+                        sidebarPanel(h4("Opções:"), width = 3,
                                      
                                      selectizeInput(inputId = "UE",
                                                     label = NULL,
@@ -92,11 +102,14 @@ ui <- fluidPage(
 
 server <- function(input, output){
   
-  #Sobre 
+  #Sobre
+  
   output$Note <- renderUI({
     note <- paste0("
                    <font size='3'> 
-                   O CepespCarreiras foi criado a partir de dados do TSE, tratados e agregados pela equipe do CepespData, permitindo a consulta aos cargos já concorridos e ocupados por um mesmo político.  Atualmente, inclui as eleições nacionais e estaduais (1998 a 2018). As eleições a nível municipal serão incorporadas futuramente.</font>")
+                   O CepespCarreiras foi criado a partir de dados do TSE, tratados e agregados pela equipe do CepespData, 
+                   permitindo a consulta aos cargos já concorridos e ocupados por um mesmo político.  Atualmente, inclui 
+                   as eleições nacionais e estaduais (1998 a 2018). As eleições a nível municipal serão incorporadas futuramente.</font>")
     HTML(note)
   })
   
@@ -109,12 +122,12 @@ server <- function(input, output){
    if(ue == "Todas as unidades eleitorais"){
       selectizeInput(inputId = "PARTIDO",
                      label = NULL,
-                     choices = c("", "AVANTE", "DC", "DEM", "MDB","NOVO", "PAN", "PATRI", "PC do B", 
+                     choices = unique(c("", "AVANTE", "DC", "DEM", "MDB","NOVO", "PAN", "PATRI", "PC do B", 
                                  "PCB", "PCO", "PDT", "PEN", "PFL", "PGT", "PHS", "PL", "PMB",
                                  "PMDB", "PMN", "PODE", "PP", "PPB", "PPL", "PPS", "PR", "PRB", 
                                  "PRN", "PRONA", "PROS", "PRP", "PRTB", "PSB", "PSC", "PSD", "PSDB", 
                                  "PSDC", "PSL", "PSN", "PSOL", "PST", "PSTU", "PT", "PT do B", "PTB",
-                                 "PTC", "PTN", "PV", "REDE", "SD", "SOLIDARIEDADE"),
+                                 "PTC", "PTN", "PV", "REDE", "SD", "SOLIDARIEDADE")),
                      selected = NULL,
                      options = list(placeholder = 'Escolha a sigla do partido'))
     } else{
