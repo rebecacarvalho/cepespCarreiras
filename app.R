@@ -161,14 +161,24 @@ server <- function(input, output){
                      choices = c("",unique(df[df$`Sigla do Partido` == req(input$PARTIDO), "Nome de urna"])),
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
-    } else {
+    } else if(ue == req(input$UE) & partido == req(input$PARTIDO)){
       selectizeInput(inputId = "CANDIDATO",
                      label = NULL,
-                     
-                     choices = c("",unique(df[df$`Sigla da Unidade Eleitoral`== req(input$UE) & 
-                                    df$`Sigla do Partido` == req(input$PARTIDO), "Nome de urna"])),
+                     choices = # Aqui estão os candidatos quando escolhido UE e partido
+                       if(nrow( # Quando o número de candidatos no distrito escolhido (req(input$UE)) for igual...
+                         unique(df[df$`Sigla da Unidade Eleitoral`== input$UE & df$`Sigla do Partido` == input$PARTIDO,])
+                         )==1){ # a 1, 
+                      c(rbind("", # crie um candidato extra chamado "", além dos candidatxs reais
+                      unique(df[df$`Sigla da Unidade Eleitoral`== input$UE & df$`Sigla do Partido` == input$PARTIDO, "Nome de urna"])))                   
+                      }
+                          else{ # Nos outros casos, o código é igual às outras condições
+                            c("",unique(df[df$`Sigla da Unidade Eleitoral`== input$UE & df$`Sigla do Partido` == input$PARTIDO, "Nome de urna"]))
+                          },
                      selected = NULL,
                      options = list(placeholder = 'Digite o nome do candidato'))
+    } 
+    else{
+      return(NULL)
     }
   })
   
