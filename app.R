@@ -52,6 +52,7 @@ ui <- fluidPage(
                     background-color:white;
                     border-bottom-color:#1897d5;
                     right: 0;
+                    color: #1897d5;
                     width: 170px;
                     padding: 10px 15px; 
                     padding-top: 10px;
@@ -76,7 +77,8 @@ ui <- fluidPage(
                     user-select: none;
                     border: 1px solid transparent;
                     color: #1897d5;
-                    font-size: 11px;
+                    font-size: 14px;
+                    font-weight: bold;
                     line-height: 12px;
                     text-transform: uppercase;
                     display: inline-block!important;
@@ -95,7 +97,8 @@ ui <- fluidPage(
                     list-style-type: none;
                     list-style-position: initial;
                     list-style-image: initial"
-                    )),
+                    
+                                      )),
     
     id = "CepespCarreiras", theme = shinytheme("flatly"),
              
@@ -144,9 +147,7 @@ ui <- fluidPage(
                           dataTableOutput("eleicoes")
                         ))),
              
-             tabPanel("Sobre", htmlOutput("Note"))
-    
-    ))
+             tabPanel("Sobre", htmlOutput("Note"))))
              
              
   
