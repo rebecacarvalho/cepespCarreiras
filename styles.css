@@ -1,0 +1,12 @@
+input[type="number"] {
+  max-width: 80%;
+}
+
+.btn-header {
+  position: fixed;
+  right: 10px;
+  bottom: 65px;
+  z-index: 999999;
+}
+
+
