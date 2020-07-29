@@ -15,14 +15,16 @@
 
 server <- function(input, output, session){
     
-    #Sobre
+  
+ 
+   #Sobre
     
     output$Note <- renderUI({
         note <- paste0("
                   <h2 align = 'center'>
                    <font size ='6' color = 'black'><strong>
                    
-                   Sobre </font></h2>
+                   SOBRE </font></h2>
                    
                    <font size = '1' color = 'black'>
                     <h4 align = 'justify'><br />
@@ -33,38 +35,26 @@ server <- function(input, output, session){
     })
     
 
+
+# 1.1. Opcoes -------------------------------------------------------------
+
+    updateSelectizeInput(session, 
+                         'CANDIDATO', 
+                         choices = candidatos, 
+                         selected = NULL,
+                         options = list(
+                           placeholder = 'Digite o nome do candidato'),
+                         server = TRUE)    
     
-    # 1.1. Tabelas ------------------------------------------------------------  
+   
     
-    
-    observeEvent(input$BCAL1, {
-        Sys.sleep(3)
-        update_autocomplete_input(session = session, id = "CANDIDATO", 
-                                  placeholder = "Digite o nome do candidato",
-                                  options = rownames(candidatos))
-    })
-    
-    # 1.1.2. Perfil do candidato  ---------------------------------------------------------
+# 1.2. Perfil do candidato -----------------------------------------------------------
     
     
     output$perfil <- DT::renderDataTable(
-        bperfil()
+      bperfil()
     )
-    
-    
-    # 1.1.2. Eleicoes ---------------------------------------------------------      
-    
-    output$eleicoes <- DT::renderDataTable(
-        beleicoes()
-        
-    )
-    
-    
-    # 1.2. Botao de acao ------------------------------------------------------
-    
-    # 1.2.1. Perfil do candidato -----------------------------------------------------------
-    
-    
+   
     
     bperfil <- eventReactive(input$BCAL1, {
         datatable(
@@ -85,8 +75,10 @@ server <- function(input, output, session){
                                  ordering = FALSE),{
             candidato <- req(input$CANDIDATO)
             if(length(candidato) > 0){
-                df %>% 
-                    dplyr::filter(`Nome de urna`== req(input$CANDIDATO)) %>% 
+               df %>% 
+                    dplyr::filter(`Nome de urna2` == input$CANDIDATO &
+                                  `Ano da Eleição` == max(`Ano da Eleição`)) %>% 
+                    head(1) %>% 
                     dplyr::select(Nome, CPF, `Número do Título Eleitoral`, Sexo, `Cor ou Raça`, `Grau de Instrução`, `Ocupação`,
                                   `Estado Civil`, Nacionalidade, `Estado de Nascimento`, `Município de Nascimento`) %>% 
                     unique()
@@ -97,7 +89,12 @@ server <- function(input, output, session){
         })
     })
     
-    # 1.2.2. Eleicoes -----------------------------------------------------------     
+# 1.3. Eleicoes -----------------------------------------------------------     
+    
+    output$eleicoes <- DT::renderDataTable(
+      beleicoes()
+      
+    )
     
     
     beleicoes <- eventReactive(input$BCAL1, {
@@ -120,10 +117,10 @@ server <- function(input, output, session){
             candidato <- req(input$CANDIDATO)
             if(length(candidato) > 0){
                 df %>% 
-                    dplyr::filter(`Nome de urna` == req(input$CANDIDATO)) %>% 
+                    dplyr::filter(`Nome de urna2` == input$CANDIDATO) %>% 
                     dplyr::select(`Ano da Eleição`, `Nº do Turno`, Cargo, `Sigla da Unidade Eleitoral`, `Situação da Candidatura`, 
                                   `Situação de Totalização do Turno`,`Número de urna`, `Sigla do Partido`,
-                                  `Composição da Coligação`, Votos)
+                                  `Composição da Coligação`, `Quantidade de Votos`)
             } else{
                 return()
                 
